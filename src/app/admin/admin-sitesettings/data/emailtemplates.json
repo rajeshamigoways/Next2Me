@@ -1,0 +1,37 @@
+[
+  {
+    "id": "forgot-password",
+    "name": "Forgot Password",
+    "subject": "Password Reset Request",
+    "content": "<h2>Password Reset Request</h2><p>Hello {USER_NAME},</p><p>We received a request to reset your password for your {SITE_NAME} account. Click the link below to reset your password:</p><p><a href='{RESET_LINK}'>Reset Password</a></p><p>If you didn’t request this, you can ignore this email.</p><p>Best regards,<br>{SITE_NAME} Team</p>",
+    "variables": ["USER_NAME", "SITE_NAME", "RESET_LINK"]
+  },
+  {
+    "id": "activate-account",
+    "name": "Activate Account",
+    "subject": "Activate Your Account",
+    "content": "<h2>Activate Your Account</h2><p>Hello {USER_NAME},</p><p>Thank you for signing up with {SITE_NAME}. Click the link below to activate your account:</p><p><a href='{ACTIVATION_LINK}'>Activate Account</a></p><p>If the button doesn't work, copy and paste this link into your browser: {ACTIVATION_LINK}</p><p>Best regards,<br>{SITE_NAME} Team</p>",
+    "variables": ["USER_NAME", "SITE_NAME", "ACTIVATION_LINK"]
+  },
+  {
+    "id": "register-email",
+    "name": "Register Email",
+    "subject": "Welcome to {SITE_NAME}",
+    "content": "<h2>Welcome to {SITE_NAME}!</h2><p>Hello {USER_NAME},</p><p>Thank you for registering with us. We're excited to have you on board!</p><p>To get started, please verify your email by clicking the link below:</p><p><a href='{VERIFICATION_LINK}'>Verify Email</a></p><p>If the button above doesn’t work, copy and paste this link into your browser: {VERIFICATION_LINK}</p><p>Best regards,<br>{SITE_NAME} Team</p>",
+    "variables": ["USER_NAME", "SITE_NAME", "VERIFICATION_LINK"]
+  },
+  {
+    "id": "reset-password",
+    "name": "Reset Password",
+    "subject": "Password Reset Confirmation",
+    "content": "<h2>Password Reset Successful</h2><p>Hello {USER_NAME},</p><p>Your password for {SITE_NAME} has been successfully reset.</p><p>If you did not perform this action, please contact our support team immediately.</p><p>Best regards,<br>{SITE_NAME} Team</p>",
+    "variables": ["USER_NAME", "SITE_NAME"]
+  },
+  {
+    "id": "change-email",
+    "name": "Change Email",
+    "subject": "Change Email Confirmation",
+    "content": "<h2>Change Email Confirmation</h2><p>Hello {USER_NAME},</p><p>You have requested to change your email for {SITE_NAME}.</p><p>Please click the link below to confirm your new email address:</p><p><a href='{NEW_EMAIL_KEY_URL}'>Confirm Email</a></p><p>If the button above doesn’t work, copy and paste this link into your browser: {NEW_EMAIL_KEY_URL}</p><p>If you did not request this change, please ignore this email.</p><p>Best regards,<br>{SITE_NAME} Team</p>",
+    "variables": ["USER_NAME", "SITE_NAME", "NEW_EMAIL_KEY_URL"]
+  }
+]

@@ -1,0 +1,85 @@
+router.post("/checkmail", async (req, res) => {
+  const { email } = req.body;
+  console.log(email);
+
+  try {
+    const admin = await Admin.findOne({ $or: [{ username: email }, { email: email }] });
+
+    if (!admin) {
+      return res.status(400).json({ message: "Email or Username not found or not an admin." });
+    }
+
+    // Generate reset token
+    const resetToken = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: "1h" });
+    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+
+    // Fetch the latest reset password template from the database
+    const emailTemplate = await EmailTemplate.findOne({ id: "forgot-password" });
+
+    if (!emailTemplate) {
+      return res.status(500).json({ message: "Email template not found in the database" });
+    }
+
+    // Replace placeholders with actual values
+    let emailContent = emailTemplate.content
+      .replace("{USER_NAME}", admin.username || admin.email)
+      .replace("{SITE_NAME}", "PostZol")
+      .replace("{RESET_LINK}", resetLink);
+
+    // Setup email options with dynamic template
+    const mailOptions = {
+      from: EMAIL_USER,
+      to: admin.email,
+      subject: emailTemplate.subject, // Use the subject from the DB
+      html: emailContent // Use the updated email content
+    };
+
+    // Send email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res.status(500).json({ message: "Error sending email" });
+      }
+      console.log("Email sent: " + info.response);
+    });
+
+    res.status(200).json({ message: "Check your email for the password reset link." });
+
+  } catch (error) {
+    console.error("Error during email check:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+<form className="space-y-4">
+{[
+  { label: "Old Password", required: true },
+  { label: "New Password", required: true },
+  { label: "Confirm Password", required: true },
+].map((field, index) => (
+  <div key={index} className="relative">
+    <Input
+      type="password"
+      name={field.label}
+      value={formData[field.label] || ""}
+      onChange={handleChange}
+      onFocus={() => handleFocus(field.label)}
+      onBlur={() => handleBlur(field.label)}
+      required={field.required}
+      className="peer w-full pt-5 pb-2 px-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+    />
+    <label
+      className={`absolute left-3 px-1 bg-white text-sm transition-all duration-500 ease-out
+        ${focusedField === field.label || formData[field.label] ?
+          "text-indigo-500 text-xs -top-2 scale-95" :
+          "top-5 text-gray-400 scale-100"}`}
+    >
+      {field.label} <span className="text-red-500">*</span>
+    </label>
+  </div>
+))}
+<Button type="submit" className="bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white">
+  Change Password
+</Button>
+</form>
