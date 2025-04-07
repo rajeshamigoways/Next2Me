@@ -32,7 +32,7 @@ export default function MessageTemplates() {
           <TabsContent value="welcome" className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Template Name</label>
-              <Input value="Welcome Message" />
+              <Input value="Welcome Message" label="" />
             </div>
 
             <div className="border rounded-md">

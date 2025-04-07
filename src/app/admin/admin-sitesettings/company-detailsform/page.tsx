@@ -8,6 +8,7 @@ import useAuthTokenVerification from "../../../hooks/useAuthVerification";
 import { useTheme } from "../../../context/ThemeContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Url from "../../../Urls"
 // import useLocation from "@/app/hooks/useLocation";
 
 
@@ -75,7 +76,7 @@ export default function CompanyDetailsForm() {
   
     const fetchCompanyDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/companysettings?username=${username}`);
+        const response = await fetch(`${Url}/companysettings?username=${username}`);
         if (!response.ok) return
   
         const data = await response.json();
@@ -109,7 +110,7 @@ export default function CompanyDetailsForm() {
     console.log("Submitting Data:", requestData);
   
     try {
-      const response = await fetch("http://localhost:5000/companysettings/", {
+      const response = await fetch(`${Url}/companysettings/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),

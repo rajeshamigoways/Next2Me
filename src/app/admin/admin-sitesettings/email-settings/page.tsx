@@ -6,11 +6,14 @@ import { Input } from "../../../components/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "../../../components/select"
 import { Button } from "../../../components/button"
 
+
+
 export default function EmailSettings() {
   const [useAlternateEmails, setUseAlternateEmails] = useState(false)
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] dark:bg-black">
+
       <div className="max-w-[1200px] mx-auto p-6">
         <h1 className="text-xl font-normal text-[#333] dark:text-white mb-8 pb-4 border-b dark:border-gray-700">
           Email Settings

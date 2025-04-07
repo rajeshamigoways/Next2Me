@@ -10,6 +10,7 @@ import { Label } from "../../components/label";
 import useAuthTokenVerification from "../../hooks/useAuthVerification"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Url from "../../Urls"
 
 export default function EditProfile() {
   useAuthTokenVerification()
@@ -66,7 +67,7 @@ export default function EditProfile() {
     const payload = { ...profileDetails };
   
     try {
-      const response = await fetch("http://localhost:5000/profilesettings/profile", {
+      const response = await fetch(`${Url}/profilesettings/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -102,7 +103,7 @@ export default function EditProfile() {
     }
   
     try {
-      const response = await fetch("http://localhost:5000/profilesettings/changepassword", {
+      const response = await fetch(`${Url}/profilesettings/changepassword`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -142,7 +143,7 @@ export default function EditProfile() {
     formData.append("avatar", avatarFile);
   
     try {
-      const response = await fetch("http://localhost:5000/profilesettings/avatar", {
+      const response = await fetch(`${Url}/profilesettings/avatar`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${authToken}`, // Send token in headers

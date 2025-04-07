@@ -14,9 +14,11 @@ const mainNavItems: MenuItem[] = [
 
   { icon: Settings, label: "SiteSettings", href: "/admin/admin-sitesettings" },
   { icon: UserCog, label: "Sub Admin", href: "/admin/subadmin" },
-  { icon: UserCog, label: "Clients", href: "/admin/client" },
+  { icon: UserCog, label: "Employees", href: "/admin/employees" },
+  { icon: UserCog, label: "Companies", href: "/admin/companies" },
   { icon: FileText, label: "CMS managment", href: "/cms" },
   { icon: AppWindow, label: "Blog management", href: "/apps" },
+ 
 ];
 
 const MenuContext = createContext<{ menuItems: MenuItem[] }>({ menuItems: mainNavItems });

@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';  // Import Toastify's CSS
 
 import { Checkbox } from "../components/checkbox";
 import Link from "next/link";
+import Url from "../Urls"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -38,7 +39,7 @@ export default function LoginForm() {
   
 
     try {
-      const response = await fetch("http://localhost:5000/user/login", {
+      const response = await fetch(`${Url}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

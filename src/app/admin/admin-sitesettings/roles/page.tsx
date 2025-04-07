@@ -16,6 +16,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Pagination from "@/app/components/pagination";
 import Swal from 'sweetalert2';
+import Url from "../../../Urls"
 
 interface AccessModule {
   moduleName: string;
@@ -48,7 +49,7 @@ export default function RolesTable() {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:5000/rolesettings/?limit=${limit}&page=${page}&searchQuery=${searchQuery}`
+          `${Url}/rolesettings/?limit=${limit}&page=${page}&searchQuery=${searchQuery}`
         );
         if (!response.ok) throw new Error("Failed to fetch roles");
 
@@ -93,7 +94,10 @@ export default function RolesTable() {
       } else if (key === "createdAt") {
         return order * (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       } else if (a[key] && b[key]) {
-        return order * a[key].localeCompare(b[key]);
+        if (typeof a[key] === 'string' && typeof b[key] === 'string') {
+          return order * a[key].localeCompare(b[key]);
+        }
+        
       }
       return 0;
     });
@@ -122,7 +126,7 @@ export default function RolesTable() {
 
     if (!result.isConfirmed) return;
     try {
-      const response = await fetch(`http://localhost:5000/rolesettings/${roleId}`, {
+      const response = await fetch(`${Url}/rolesettings/${roleId}`, {
         method: "DELETE",
       });
 

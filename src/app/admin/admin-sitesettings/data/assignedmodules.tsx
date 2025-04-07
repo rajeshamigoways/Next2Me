@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { GripVertical, Trash2 } from "lucide-react"
-import { Button } from "../../button"
+import { Button } from "../../../components/button"
 
 interface Module {
   id: string

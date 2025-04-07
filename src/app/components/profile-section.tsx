@@ -8,7 +8,7 @@ import { MapPin } from "lucide-react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { useTheme } from "next-themes";
-
+import Url from "../Urls"
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const skills = [
@@ -22,7 +22,7 @@ export function ProfileSection() {
   const [username, setUsername] = useState("Loading...");
   const [error, setError] = useState("");
   const { resolvedTheme } = useTheme(); // Get current theme
-  const serverUrl = "http://localhost:5000";
+  const serverUrl = `${Url}`;
   const imageUrl = avatar ? `${serverUrl}${avatar}` : "/default-avatar.png";
 
 
@@ -36,7 +36,7 @@ export function ProfileSection() {
       }
   
       try {
-        const response = await fetch("http://localhost:5000/user/me", {
+        const response = await fetch(`${Url}/user/me`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,

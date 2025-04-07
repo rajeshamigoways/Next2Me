@@ -7,6 +7,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "../../components/button";
 import resetimg from "../../../../public/images/reset-password.jpg";
+import Url from "../../Urls"
+
 
 export default function ResetPassword() {
   const params = useParams();
@@ -21,7 +23,7 @@ export default function ResetPassword() {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/email/verify-token/${token}`);
+        const response = await fetch(`${Url}/email/verify-token/${token}`);
         const data = await response.json();
 
         if (response.ok) {
@@ -50,7 +52,7 @@ export default function ResetPassword() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/email/reset-password/${token}`, {
+      const response = await fetch(`${Url}/email/reset-password/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),

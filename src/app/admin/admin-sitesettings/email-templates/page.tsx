@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import useAuthTokenVerification from "../../../hooks/useAuthVerification"
+import Url from "../../../Urls"
 
 export default function EmailTemplates() {
   useAuthTokenVerification()
@@ -21,7 +22,7 @@ export default function EmailTemplates() {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await fetch("http://localhost:5000/emailsettings/email-templates");
+        const response = await fetch(`${Url}/emailsettings/email-templates`);
         const data = await response.json();
         setTemplates(data);
         if (data.length > 0) {
@@ -52,7 +53,7 @@ export default function EmailTemplates() {
     if (!activeTemplate) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/emailsettings/email-templates/${activeTemplate.id}`, {
+      const response = await fetch(`${Url}/emailsettings/email-templates/${activeTemplate.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -114,6 +115,7 @@ export default function EmailTemplates() {
                   </label>
                   <Input
                     id="subject"
+                    label=""
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
                     className="w-full"

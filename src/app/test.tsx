@@ -64,7 +64,7 @@ export default function NotificationPage() {
       const fetchClients = async () => {
         try {
           setLoading(true);
-          const response = await fetch(`http://localhost:5000/clients/`);
+          const response = await fetch(`${Url}/clients/`);
   
           if (!response.ok) throw new Error("Failed to fetch clients");
   
@@ -88,7 +88,7 @@ export default function NotificationPage() {
         const fetchClients = async () => {
           try {
             setLoading(true);
-            const response = await fetch(`http://localhost:5000/clients/`);
+            const response = await fetch(`${Url}/clients/`);
     
             if (!response.ok) throw new Error("Failed to fetch clients");
     

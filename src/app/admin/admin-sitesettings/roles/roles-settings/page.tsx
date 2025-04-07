@@ -11,6 +11,7 @@ import { useMenu } from "../../../../context/MenuContext";
 import useAuthTokenVerification from "../../../../hooks/useAuthVerification";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Url from "../../../../Urls"
 
 const permissions = ["Add", "Edit", "Delete", "View"];
 
@@ -109,11 +110,11 @@ export default function RolesAndPrivileges() {
     };
 
     try {
-      const responseCheck = await fetch(`http://localhost:5000/rolesettings/check/${state.roleName}`);
+      const responseCheck = await fetch(`${Url}/rolesettings/check/${state.roleName}`);
       const checkData = await responseCheck.json();
 
       if (checkData.exists) {
-        const response = await fetch(`http://localhost:5000/rolesettings/${checkData.id}`, {
+        const response = await fetch(`${Url}/rolesettings/${checkData.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formattedData),
@@ -126,7 +127,7 @@ export default function RolesAndPrivileges() {
           toast.error(data.message || "Failed to update role");
         }
       } else {
-        const response = await fetch("http://localhost:5000/rolesettings/", {
+        const response = await fetch(`${Url}/rolesettings/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formattedData),

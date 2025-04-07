@@ -8,7 +8,7 @@
 //   useEffect(() => {
 //     const fetchCountries = async () => {
 //       try {
-//         const response = await fetch("http://localhost:5000/countries"); // Your Express API
+//         const response = await fetch(`${Url}/countries`); // Your Express API
 //         const data = await response.json();
 //         setCountries(data.map((country: any) => ({ name: country.name, code: country.code2 })));
 //       } catch (error) {
@@ -23,7 +23,7 @@
 //   const fetchStates = async (countryCode: string) => {
 //     if (!countryCode) return;
 //     try {
-//       const response = await fetch(`http://localhost:5000/countries/states/${countryCode}`); // Your Express API
+//       const response = await fetch(`${Url}/countries/states/${countryCode}`); // Your Express API
 //       const data = await response.json();
 //       setStates(data.map((state: any) => ({ name: state.name, code: state.code })));
 //     } catch (error) {

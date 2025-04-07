@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Label } from "../../../components/label";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Url from "../../../Urls"
 
 export default function ThemeSettings() {
   const [formData, setFormData] = useState({
@@ -48,7 +49,7 @@ export default function ThemeSettings() {
     });
 
     try {
-      const response = await fetch("http://localhost:5000/themesettings", {
+      const response = await fetch(`${Url}/themesettings`, {
         method: "POST",
         body: data,
       });

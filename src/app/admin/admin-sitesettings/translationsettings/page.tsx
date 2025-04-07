@@ -80,7 +80,7 @@ export default function TranslationsDashboard() {
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <span className="text-sm">Search:</span>
-          <Input className="w-full sm:w-[200px]"/>
+          <Input label="" className="w-full sm:w-[200px]"/>
         </div>
       </div>
 

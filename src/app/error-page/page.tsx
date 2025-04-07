@@ -1,16 +1,21 @@
-"use client"
+"use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function Error({ statusCode }) {
-//   const router = useRouter();
+export default function Error() {
+  const [statusCode, setStatusCode] = useState<number | null>(null);
+  const router = useRouter();
 
-//   useEffect(() => {
-//     setTimeout(() => {
-//       router.push("/");
-//     }, 5000);
-//   }, [router]);
+  useEffect(() => {
+    const status = window?.location?.pathname.includes("404") ? 404 : 500; // Default to 500
+    setStatusCode(status);
+    
+    // Optional: Redirect to home page after 5 seconds
+    setTimeout(() => {
+      router.push("/admin");
+    }, 5000);
+  }, [router]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
@@ -31,8 +36,3 @@ export default function Error({ statusCode }) {
     </div>
   );
 }
-
-Error.getInitialProps = ({ res, err }) => {
-  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
-  return { statusCode };
-};

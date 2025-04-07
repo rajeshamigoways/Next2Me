@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Url from "../Urls"
 
 const useAuthTokenVerification = () => {
   const router = useRouter();
@@ -15,7 +16,7 @@ const useAuthTokenVerification = () => {
 
     const verifyAuthToken = async () => {
       try {
-        const response = await fetch("http://localhost:5000/user/verify-authtoken", {
+        const response = await fetch(`${Url}/user/verify-authtoken`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

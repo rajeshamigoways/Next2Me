@@ -23,7 +23,7 @@ const useDebounce = (value: string, delay: number) => {
 const Select = SelectPrimitive.Root
 const SelectGroup = SelectPrimitive.Group
 const SelectValue = SelectPrimitive.Value
-
+// const itemsRef = React.useRef<(HTMLDivElement | null)[]>([]);
 const SelectTrigger = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Trigger>, React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>>(
   ({ className, children, ...props }, ref) => (
     <SelectPrimitive.Trigger
@@ -103,13 +103,19 @@ const SelectContent = React.forwardRef<React.ElementRef<typeof SelectPrimitive.C
             />
           </div>
 
-          <SelectPrimitive.Viewport className="p-1">
-            {React.Children.map(filteredChildren, (child, index) =>
-              React.cloneElement(child as React.ReactElement, {
-                ref: (el: HTMLDivElement) => (itemsRef.current[index] = el),
-              })
-            )}
-          </SelectPrimitive.Viewport>
+   
+
+<SelectPrimitive.Viewport className="p-1">
+  {React.Children.map(filteredChildren, (child, index) =>
+    React.cloneElement(child as React.ReactElement, {
+      ref: (el: HTMLDivElement) => {
+        // Ensure that the ref is correctly assigned to the appropriate index
+        itemsRef.current[index] = el;
+      },
+    })
+  )}
+</SelectPrimitive.Viewport>
+
         </SelectPrimitive.Content>
       </SelectPrimitive.Portal>
     )

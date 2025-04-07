@@ -5,6 +5,7 @@ import { User, Menu, Settings } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useState, useEffect } from "react";
 import { useMenu } from "../context/MenuContext";
+import Url from "../Urls"
 
 export function Sidebar({ isCollapsed }) {
   const { menuItems } = useMenu();
@@ -22,7 +23,7 @@ export function Sidebar({ isCollapsed }) {
       }
   
       try {
-        const response = await fetch("http://localhost:5000/user/me/", {
+        const response = await fetch(`${Url}/user/me/`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,

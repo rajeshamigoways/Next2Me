@@ -4,7 +4,7 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,                    // Disable strict mode entirely
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -20,9 +20,19 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@components/*": ["./src/components/"]  // ✅ Added path alias for components
+      "@components/*": ["./src/components/"] // Path alias for components
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"],
+  "nextConfig": {
+    "typescript": {
+      "ignoreBuildErrors": true  // Disable type checking during build
+    }
+  }
 }

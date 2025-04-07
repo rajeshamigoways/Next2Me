@@ -17,6 +17,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { Input } from "../components/input";
+import Url from "../Urls"
 
 export function Navbar({ isCollapsed, setIsCollapsed }) {
   const { avatar } = useUser();
@@ -26,7 +27,7 @@ export function Navbar({ isCollapsed, setIsCollapsed }) {
 
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
-  const serverUrl = "http://localhost:5000";
+  const serverUrl = `${Url}`;
   const imageUrl = avatar ? `${serverUrl}${avatar}` : "/default-avatar.png";
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export function Navbar({ isCollapsed, setIsCollapsed }) {
   const handleLogout = async () => {
     try {
       const storedEmail = localStorage.getItem("username");
-      const response = await fetch("http://localhost:5000/user/logout", {
+      const response = await fetch(`${Url}/user/logout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ usernameOrEmail: storedEmail }),

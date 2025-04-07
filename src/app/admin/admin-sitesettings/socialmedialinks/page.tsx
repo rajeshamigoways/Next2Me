@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAuthTokenVerification from "../../../hooks/useAuthVerification";
 import { useTheme } from "../../../context/ThemeContext";
+import Url from "../../../Urls"
 
 export default function SocialMediaForm() {
   useAuthTokenVerification();
@@ -32,7 +33,7 @@ export default function SocialMediaForm() {
   useEffect(() => {
     const fetchSocialLinks = async () => {
       try {
-        const response = await fetch("http://localhost:5000/socialmediasettings");
+        const response = await fetch(`${Url}/socialmediasettings`);
         const data = await response.json();
         if (response.ok && data.data) {
           setSocialLinks(data.data);
@@ -66,7 +67,7 @@ export default function SocialMediaForm() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/socialmediasettings", {
+      const response = await fetch(`${Url}/socialmediasettings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedLinks),

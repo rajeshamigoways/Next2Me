@@ -8,6 +8,7 @@ import { Button } from "../components/button"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import forgetimage from "../../../public/images/forgot-password.jpg"
+import Url from "../Urls"
 
 export default function ForgotPassword() {
   const [emailFocused, setEmailFocused] = useState(false)
@@ -23,7 +24,7 @@ export default function ForgotPassword() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/email/checkmail", {
+      const response = await fetch(`${Url}/email/checkmail`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

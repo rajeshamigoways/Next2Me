@@ -1,40 +1,59 @@
-
 const express = require("express");
-const User = require("../models/UserLogin"); // Import the User model
-const jwt = require("jsonwebtoken");
+const User = require("../models/UserLogin");
+const adminUser = require("../models/SuperadminModels");
 const mongoose = require("mongoose");
-
-const Role =require( "../models/SettingModels/RolesSettingsModels")
+const Role = require("../models/RolesSettingsModels");
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const bcrypt = require("bcrypt");
+const { generateToken, verifyToken, sendEmail } = require("../commonfunction");
 
+// ================= Helper Functions =================
 
+const findUserByUsernameOrEmail = async (usernameOrEmail) => {
+  let user = await adminUser.findOne({
+    $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+  });
+  let userType = "admin";
 
-// **Login Route**
+  if (!user) {
+    user = await User.findOne({
+      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+    });
+    userType = "user";
+  }
+
+  return { user, userType };
+};
+
+const findUserById = async (id) => {
+  let user = await adminUser.findById(id);
+  let userType = "admin";
+
+  if (!user) {
+    user = await User.findById(id);
+    userType = "user";
+  }
+
+  return { user, userType };
+};
+
+// ================= LOGIN =================
 router.post("/login", async (req, res) => {
   const { usernameOrEmail, password } = req.body;
 
   try {
-    // Look for a user by either username or email
-    const user = await User.findOne({
-      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
-    });
+    const { user, userType } = await findUserByUsernameOrEmail(usernameOrEmail);
 
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Check if the password matches (ensure password hashing is handled in a real-world scenario)
-    if (password !== user.password) {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    // Store the token in the user's record (authToken field)
+    const token = generateToken(user._id, "1h");
     user.authToken = token;
     await user.save();
 
@@ -43,77 +62,30 @@ router.post("/login", async (req, res) => {
       token,
       username: user.username,
       role: user.role,
+      userType,
     });
+
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
-// router.put("/:id", async (req, res) => {
-//   try {
-//     const userId = req.params.id;
-//     const { fullName, username, email, phone, password, role, company } = req.body;
 
-//     const updatedUser = await User.findByIdAndUpdate(
-//       userId,
-//       { fullName, username, email, phone, password, role, company },
-//       { new: true } // Return updated user
-//     );
 
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
 
-//     res.status(200).json(updatedUser);
-//   } catch (error) {
-//     console.error("Error updating user:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// router.post("/register", async (req, res) => {
-//   const { fullName, username, email, phone, password, role, roletype } = req.body;
-
-//   console.log("Received Role ID:", role); // 🛠 Debugging Step 1
-//   console.log("Request Body:", req.body);
-
-//   try {
-//     // Validate role ID format before querying
-//     if (!mongoose.Types.ObjectId.isValid(role)) {
-//       return res.status(400).json({ message: "Invalid role ID format" });
-//     }
-
-//     const roleDoc = await Role.findById(role);
-//     console.log("Fetched RoleDoc:", roleDoc); // 🛠 Debugging Step 2
-
-//     if (!roleDoc) {
-//       return res.status(400).json({ message: "Invalid role - Role not found in DB" });
-//     }
-
-//     const newUser = new User({
-//       fullName,
-//       username,
-//       email,
-//       phone,
-//       password,
-//       role: roleDoc._id, // Use the valid ObjectId
-//       roletype,
-//     });
-
-//     await newUser.save();
-
-//     res.status(201).json({
-//       message: "User successfully registered",
-//       user: newUser,
-//     });
-//   } catch (error) {
-//     console.error("Error during registration:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-router.post("/register", async (req, res) => {
-  const { fullName, username, email, phone, password, role, usertype, address } = req.body;
+router.post("/", async (req, res) => {
+  const {
+    fullName,
+    username,
+    email,
+    phone,
+    password,
+    role,
+    usertype,
+    address,
+    company,
+    branch, // Include company and branch in the destructuring
+  } = req.body;
 
   try {
     if (!mongoose.Types.ObjectId.isValid(role)) {
@@ -125,16 +97,37 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Invalid role - Role not found in DB" });
     }
 
-    const newUser = new User({
+    // 🔒 Hash the password before saving
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const newUserData = {
       fullName,
       username,
       email,
       phone,
-      password,
+      password: hashedPassword,
       role: roleDoc._id,
       usertype,
       address,
-    });
+    };
+
+    // ✅ If usertype is 'employee', include company and branch
+    if (usertype === "employee") {
+      if (!company || !branch) {
+        return res.status(400).json({ message: "Company and Branch are required for employee type" });
+      }
+
+      // Optionally validate if company/branch are valid ObjectIds or exist in DB
+      // if (!mongoose.Types.ObjectId.isValid(company) || !mongoose.Types.ObjectId.isValid(branch)) {
+      //   return res.status(400).json({ message: "Invalid company or branch ID format" });
+      // }
+
+      newUserData.company = company;
+      newUserData.branch = branch;
+    }
+
+    const newUser = new User(newUserData);
 
     await newUser.save();
     res.status(201).json({ message: "User successfully registered", user: newUser });
@@ -143,10 +136,19 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+// ================= UPDATE USER =================
 router.put("/:id", async (req, res) => {
   try {
     const userId = req.params.id;
     const { fullName, username, email, phone, password, role, usertype, address } = req.body;
+
+    const { user, userType } = await findUserById(userId);
+
+    if (!user || userType === "admin") {
+      return res.status(404).json({ message: "User not found or not updatable" });
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -158,14 +160,10 @@ router.put("/:id", async (req, res) => {
         password,
         role,
         usertype,
-        address, // ✅ Update address fields
+        address,
       },
-      { new: true } // Return updated user
+      { new: true }
     );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
 
     res.status(200).json(updatedUser);
   } catch (error) {
@@ -174,20 +172,17 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// ================= LOGOUT =================
 router.post("/logout", async (req, res) => {
   const { usernameOrEmail } = req.body;
 
   try {
-    // Find user by username or email
-    const user = await User.findOne({
-      $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
-    });
+    const { user } = await findUserByUsernameOrEmail(usernameOrEmail);
 
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
 
-    // Clear the authToken to log out the user
     user.authToken = null;
     await user.save();
 
@@ -198,91 +193,32 @@ router.post("/logout", async (req, res) => {
   }
 });
 
-// **Get User Details Route (Protected)**
+// ================= GET LOGGED-IN USER DETAILS =================
 router.get("/me", async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
-console.log("enteredd...")
+    if (!token) return res.status(401).json({ message: "No token, authorization denied" });
 
-    if (!token) {
-      return res.status(401).json({ message: "No token, authorization denied" });
-    }
-    
-    const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("token here",decoded.id)
-    const user = await User.findById(decoded.id).select("-password");
+    const decoded = verifyToken(token);
+    const { user, userType } = await findUserById(decoded.id);
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json({ username: user.username, role: user.role, company: user.company });
+    res.json({
+      username: user.username,
+      role: user.role,
+      company: user.company,
+      userType,
+    });
   } catch (error) {
     console.error("Error fetching user details:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-
-
-// router.get("/", async (req, res) => {
-//   const { limit = 10, page = 1, username, role, company } = req.query;
-//   console.log(role);
-
-//   try {
-//     const pageNumber = parseInt(page, 10) || 1;
-//     const pageLimit = parseInt(limit, 10) || 10;
-
-//     const query = {};
-
-//     if (username) query.username = { $regex: username, $options: "i" };
-//     if (company && company !== "all") query.company = company;
-
-//     if (role && role !== "all") {
-//       // Find the role ID by roleName
-//       const roleDoc = await Role.findOne({ roleName: role });
-
-//       // If the role exists, use its ObjectId in the query
-//       if (roleDoc) {
-//         query.role = roleDoc._id;
-//       } else {
-//         // If role not found, return an empty array
-//         return res.status(200).json({
-//           users: [],
-//           totalUsers: 0,
-//           totalPages: 0,
-//           currentPage: pageNumber,
-//         });
-//       }
-//     }
-
-//     // Get the total count of users matching the query
-//     const totalUsers = await User.countDocuments(query);
-
-//     // Fetch users and populate only the roleName field
-//     const users = await User.find(query)
-//       .skip((pageNumber - 1) * pageLimit)
-//       .limit(pageLimit)
-//       .populate({
-//         path: "role", // Ensure that the role is properly populated
-//         select: "roleName", // Only fetch the roleName field
-//       })
-//       .sort({ createdAt: -1 });
-
-//     res.status(200).json({
-//       users,
-//       totalUsers,
-//       totalPages: Math.ceil(totalUsers / pageLimit),
-//       currentPage: pageNumber,
-//     });
-//   } catch (error) {
-//     console.error("Error fetching users:", error);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
+// ================= GET USERS LIST (only from User model) =================
 router.get("/", async (req, res) => {
-  const { limit = 10, page = 1, username, role, company } = req.query;
+  const { limit = 10, page = 1, username, roleId, company, userType } = req.query;
 
   try {
     const pageNumber = parseInt(page, 10) || 1;
@@ -292,31 +228,18 @@ router.get("/", async (req, res) => {
 
     if (username) query.username = { $regex: username, $options: "i" };
     if (company && company !== "all") query.company = company;
+    if (userType) query.userType = userType;
 
-    if (role && role !== "all") {
-      // Find the role ID by roleName
-      const roleDoc = await Role.findOne({ roleName: role });
-
-      // If the role exists, use its ObjectId in the query
-      if (roleDoc) {
-        query.role = roleDoc._id;
-      } else {
-        return res.status(200).json({
-          users: [],
-          totalUsers: 0,
-          totalPages: 0,
-          currentPage: pageNumber,
-        });
-      }
+    // Directly use roleId if provided
+    if (roleId && roleId !== "all") {
+      query.roleID = roleId;
     }
 
-    // Get total users count
     const totalUsers = await User.countDocuments(query);
     const totalPages = Math.ceil(totalUsers / pageLimit);
 
-    // Fetch paginated users
     const users = await User.find(query)
-      .populate("role") // Ensure role details are included
+      .populate("role")
       .skip((pageNumber - 1) * pageLimit)
       .limit(pageLimit);
 
@@ -332,17 +255,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-
-// DELETE user
+// ================= DELETE USER =================
 router.delete("/:id", async (req, res) => {
   try {
-    const userId = req.params.id;
-    const user = await User.findByIdAndDelete(userId);
-    
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    const { user, userType } = await findUserById(req.params.id);
+
+    if (!user || userType === "admin") {
+      return res.status(404).json({ message: "User not found or not deletable" });
     }
 
+    await User.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     console.error("Error deleting user:", error);
@@ -350,8 +272,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-
-// **Token Verification Route**
+// ================= VERIFY TOKEN =================
 router.post("/verify-authtoken", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -360,11 +281,8 @@ router.post("/verify-authtoken", async (req, res) => {
   }
 
   try {
-    // Verify token signature
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    // Find the user in the database
-    const user = await User.findById(decoded.id);
+    const decoded = verifyToken(token);
+    const { user } = await findUserById(decoded.id);
 
     if (!user || user.authToken !== token) {
       return res.status(401).json({ valid: false, message: "Invalid token" });
@@ -377,11 +295,3 @@ router.post("/verify-authtoken", async (req, res) => {
 });
 
 module.exports = router;
-
-
-
-// Fetch users with pagination and filtering
-
-
-
-

@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import Swal from 'sweetalert2';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/table";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "../../components/Dialog";
+import Url from "../../Urls"
 
 interface User {
   _id: string;
@@ -56,7 +57,7 @@ export default function UsersPage() {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetch("http://localhost:5000/rolesettings/");
+        const response = await fetch(`${Url}/rolesettings/`);
         const data = await response.json();
         setRoles(data.roles || []);
       } catch (error) {
@@ -73,9 +74,10 @@ export default function UsersPage() {
         page: String(page),
         username: searchQuery.username || "",
         role: searchQuery.role || "all",
+        roleId : "2", // <-- filter by userType
       }).toString();
   
-      const response = await fetch(`http://localhost:5000/user/?${queryParams}`);
+      const response = await fetch(`${Url}/user/?${queryParams}`);
   
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.status}`);
@@ -97,6 +99,7 @@ export default function UsersPage() {
       setLoading(false);
     }
   };
+  
   
 
   useEffect(() => {
@@ -186,7 +189,7 @@ console.log("its sorted user",sorted)
         if (!result.isConfirmed) return;
   
       try {
-        const response = await fetch(`http://localhost:5000/user/${userId}`, {
+        const response = await fetch(`${Url}/user/${userId}`, {
           method: "DELETE",
         });
         if (response.ok) {
@@ -243,7 +246,8 @@ console.log("its sorted user",sorted)
                 <DialogTitle>Hidden Title</DialogTitle>
               </VisuallyHidden>
             </DialogHeader>
-            <AddUserForm closeModal={() => setIsModalOpen(false)} selectedUser={selectedUser} refreshUsers={fetchUsers} />
+            <AddUserForm closeModal={() => setIsModalOpen(false)} selectedUser={selectedUser} refreshUsers={fetchUsers}   title="Subadmin"
+            usertype="subadmin"/>
 
   </DialogContent>
 </Dialog>
@@ -338,10 +342,12 @@ console.log("its sorted user",sorted)
       <TableCell>{formatAddress(user.address)}</TableCell>
       <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
       <TableCell>
-        <Button onClick={() => handleEdit(user)}>
+        <Button onClick={() => handleEdit(user)}   variant="ghost"
+                        size="icon">
           <FontAwesomeIcon icon={faEdit} />
         </Button>
-        <Button onClick={() => handleDelete(user._id)}>
+        <Button onClick={() => handleDelete(user._id)}   variant="ghost"
+                        size="icon">
           <FontAwesomeIcon icon={faTrash} />
         </Button>
       </TableCell>
